@@ -439,5 +439,70 @@
       <li>Draw a nighttime city skyline, with building silhouettes and stars in the sky. Use paletton.com to come up with a good dark color scheme. Every time you run the sketch the buildings should be at different heights and the stars should be at different locations in the sky.
     </ol>
     <br>
+    <h3>Battlecode starter code</h3>
+    
+   static void runArchon() throws GameActionException {
+      while (true) {
+         try {
+            Direction dir = randomDirection();
+            if (rc.canHireGardener(dir) && Math.random() < .01) {
+               rc.hireGardener(dir);
+            }
+            tryMove(dir);
+            Clock.yield();     
+         } 
+         catch (Exception e) {
+            System.out.println("Archon Exception");
+            e.printStackTrace();
+         }
+      }
+   }
+
+   static void runGardener() throws GameActionException {
+      while (true) {
+         try {
+            RobotInfo[] friends = rc.senseNearbyRobots(-1, rc.getTeam());
+            for (int i = 0; i < friends.length; i++) {
+               if (friends[i].getType() == RobotType.ARCHON) {
+                  Direction away = rc.getLocation().directionTo(friends[i].getLocation()).opposite();
+                  tryMove(away);
+               }
+            }
+            Direction dir = randomDirection();
+            if (rc.canBuildRobot(RobotType.SOLDIER, dir) && Math.random() < .2) {
+               rc.buildRobot(RobotType.SOLDIER, dir);
+            }
+            Clock.yield();     
+         } 
+         catch (Exception e) {
+            System.out.println("Gardener Exception");
+            e.printStackTrace();
+         }
+      }
+   }
+
+   static void runSoldier() throws GameActionException {
+      Team enemy = rc.getTeam().opponent();
+      while (true) {
+         try {
+            MapLocation myLocation = rc.getLocation();
+            RobotInfo[] robots = rc.senseNearbyRobots(-1, enemy);
+            if (robots.length > 0) {
+               if (rc.canFireSingleShot()) {
+                  rc.fireSingleShot(rc.getLocation().directionTo(robots[0].location));
+               }
+            } 
+            else {
+            	Direction myDir = new Direction((float)Math.PI / -3);
+               	if (rc.canMove(myDir)) tryMove(myDir);
+            }
+            Clock.yield();
+         } 
+         catch (Exception e) {
+            System.out.println("Soldier Exception");
+            e.printStackTrace();
+         }
+      }
+   }
   </body>
 </html>
